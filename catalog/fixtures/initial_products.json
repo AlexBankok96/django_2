@@ -1,0 +1,70 @@
+[
+  {
+    "model": "catalog.category",
+    "pk": 1,
+    "fields": {
+      "name": "Books",
+      "description": "All kinds of books"
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 2,
+    "fields": {
+      "name": "Electronics",
+      "description": "Electronic devices"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 1,
+    "fields": {
+      "name": "Romance Novel",
+      "description": "A beautiful love story",
+      "price": 9.99,
+      "category": 1,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "image": "media/product1.jpg"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 2,
+    "fields": {
+      "name": "Smartphone",
+      "description": "Latest model smartphone",
+      "price": 699.99,
+      "category": 2,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "image": "media/product2.jpg"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 3,
+    "fields": {
+      "name": "Science Fiction Novel",
+      "description": "An exciting journey through space",
+      "price": 12.99,
+      "category": 1,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "image": "media/product3.jpg"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 4,
+    "fields": {
+      "name": "Laptop",
+      "description": "High-performance laptop for all your needs",
+      "price": 999.99,
+      "category": 2,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "image": "media/product4.jpg"
+    }
+  }
+]

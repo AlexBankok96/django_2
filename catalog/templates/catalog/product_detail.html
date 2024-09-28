@@ -8,8 +8,11 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6">
-            <img src="{{ object.image|media_url }}" class="img-fluid" alt="{{ object.name }}">
-
+            {% if object.image %}
+                <img src="{{ object.image|media_url }}" class="img-fluid" alt="{{ object.name }}">
+            {% else %}
+                <p>Изображение недоступно</p>
+            {% endif %}
         </div>
         <div class="col-md-6">
             <h2>{{ object.name }}</h2>

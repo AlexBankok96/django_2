@@ -2,10 +2,11 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from .models import Product, Category
 
-def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    context = {'object': product}
-    return render(request, 'catalog/product_detail.html', context)
+
+# def product_detail(request, pk):
+#     product = get_object_or_404(Product, pk=pk)
+#     context = {'object': product}
+#     return render(request, 'catalog/product_detail.html', context)
 
 class ProductListView(ListView):
     model = Product
