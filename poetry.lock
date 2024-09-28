@@ -132,6 +132,7 @@ typing = ["typing-extensions"]
 xmp = ["defusedxml"]
 
 [[package]]
+<<<<<<< HEAD
 name = "psycopg2"
 version = "2.9.9"
 description = "psycopg2 - Python-PostgreSQL Database Adapter"
@@ -154,6 +155,8 @@ files = [
 ]
 
 [[package]]
+=======
+>>>>>>> 6b8043fa86c735e227fbb73efcc59ccf8204fdce
 name = "sqlparse"
 version = "0.5.1"
 description = "A non-validating SQL parser."
@@ -182,4 +185,8 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
+<<<<<<< HEAD
 content-hash = "b755050c99cfbe62bd921f478be8eda56cfab2038be9e30bcef05a0a6592cc25"
+=======
+content-hash = "c40aff8c782812b1c3b3af41a0dd96e7f53ceac3b3d56c004b5159ab913cc028"
+>>>>>>> 6b8043fa86c735e227fbb73efcc59ccf8204fdce
