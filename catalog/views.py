@@ -1,12 +1,7 @@
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+from django.urls import reverse_lazy
 from .models import Product, Category
-
-
-# def product_detail(request, pk):
-#     product = get_object_or_404(Product, pk=pk)
-#     context = {'object': product}
-#     return render(request, 'catalog/product_detail.html', context)
 
 class ProductListView(ListView):
     model = Product
@@ -18,22 +13,52 @@ class ProductDetailView(DetailView):
     template_name = 'catalog/product_detail.html'
     context_object_name = 'object'
 
-def category_list(request):
-    categories = Category.objects.all()
-    return render(request, 'catalog/category_list.html', {'categories': categories})
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'catalog/category_list.html'
+    context_object_name = 'categories'
 
-def product_list_by_category(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    products = Product.objects.filter(category=category)
+class ProductListByCategoryView(ListView):
+    model = Product
+    template_name = 'catalog/product_list_by_category.html'
+    context_object_name = 'products'
 
-    # Фильтрация по цене
-    min_price = request.GET.get('min_price')
-    max_price = request.GET.get('max_price')
+    def get_queryset(self):
+        category = get_object_or_404(Category, pk=self.kwargs['pk'])
+        queryset = Product.objects.filter(category=category)
 
-    if min_price:
-        products = products.filter(price__gte=min_price)
-    if max_price:
-        products = products.filter(price__lte=max_price)
 
-    context = {'category': category, 'products': products}
-    return render(request, 'catalog/product_list_by_category.html', context)
+        min_price = self.request.GET.get('min_price')
+        max_price = self.request.GET.get('max_price')
+
+        if min_price:
+            queryset = queryset.filter(price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(price__lte=max_price)
+
+        return queryset
+
+class ContactsView(TemplateView):
+    template_name = 'catalog/contacts.html'
+
+# Новые представления для CRUD
+
+
+class ProductCreateView(CreateView):
+    model = Product
+    template_name = 'catalog/product_form.html'
+    fields = ['name', 'description', 'price', 'image', 'category']
+    success_url = reverse_lazy('catalog:product_list')
+
+# Редактирование товара
+class ProductUpdateView(UpdateView):
+    model = Product
+    template_name = 'catalog/product_form.html'
+    fields = ['name', 'description', 'price', 'image', 'category']
+    success_url = reverse_lazy('catalog:product_list')
+
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'catalog/product_confirm_delete.html'
+    success_url = reverse_lazy('catalog:product_list')

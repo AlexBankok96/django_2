@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>{{ blog_post.title }}</h1>
+  <p>{{ blog_post.content }}</p>
+  {% if blog_post.preview_image %}
+    <img src="{{ blog_post.preview_image.url }}" alt="{{ blog_post.title }}">
+  {% endif %}
+  <p>Дата создания: {{ blog_post.created_at }}</p>
+  <p>Просмотры: {{ blog_post.views_count }}</p>
+  <p>Статус: {% if blog_post.published %} Опубликовано {% else %} Не опубликовано {% endif %}</p>
+  <a href="{% url 'blog:blog_post_list' %}">Вернуться</a>
+  <a href="{% url 'blog:blog_post_update' blog_post.slug %}">Редактировать</a>
+  <a href="{% url 'blog:blog_post_delete' blog_post.slug %}">Удалить</a>
+{% endblock %}

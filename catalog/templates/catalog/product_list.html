@@ -1,18 +1,23 @@
 {% extends 'base.html' %}
-
+{% load media_tags %}
 {% block content %}
 <h1 class="my-4">Список товаров</h1>
+
+<a href="{% url 'catalog:product_create' %}" class="btn btn-primary mb-4">Создать новый товар</a>
+
 <div class="row">
     {% for object in object_list %}
     <div class="col-md-4">
         <div class="card mb-4 shadow-sm">
-            <img src="{{ object.image.url }}" class="card-img-top" alt="{{ object.name }}">
-            <p>Image URL: {{ object.image.url }}</p>
+            <img src="{{ object.image | media_url }}" class="card-img-top" alt="{{ object.name }}">
+
             <div class="card-body">
                 <h5 class="card-title">{{ object.name }}</h5>
                 <p class="card-text">{{ object.description|truncatewords:20 }}</p>
                 <p class="card-text"><strong>Цена: {{ object.price }} руб.</strong></p>
-                <a href="{% url 'product_detail' object.pk %}" class="btn btn-primary">Подробнее</a>
+                <a href="{% url 'catalog:product_detail' object.pk %}" class="btn btn-primary">Подробнее</a>
+                <a href="{% url 'catalog:product_update' object.pk %}" class="btn btn-warning">Редактировать</a>
+                <a href="{% url 'catalog:product_delete' object.pk %}" class="btn btn-danger">Удалить</a>
             </div>
         </div>
     </div>
