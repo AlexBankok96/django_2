@@ -15,7 +15,7 @@
     <ul class="list-group">
         {% for product in products %}
             <li class="list-group-item">
-                <a href="{% url 'product_detail' product.pk %}">{{ product.name }}</a> - {{ product.price }} ₽
+                <a href="{% url 'catalog:product_detail' product.pk %}">{{ product.name }}</a> - {{ product.price }} ₽
             </li>
         {% empty %}
             <li class="list-group-item">Нет продуктов в этой категории.</li>

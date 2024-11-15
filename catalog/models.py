@@ -25,6 +25,19 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+class Version(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='versions')
+    version_number = models.CharField(max_length=50)
+    version_name = models.CharField(max_length=255)
+    is_current = models.BooleanField(default=False)
+    description = models.TextField(default="Нет описания")
+
+    class Meta:
+        ordering = ['-is_current', 'version_number']
+
+    def __str__(self):
+        return f'{self.product.name} - {self.version_name} ({self.version_number})'
+
 
 # class BlogPost(models.Model):
 #     title = models.CharField(max_length=255)
