@@ -1,97 +1,91 @@
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.forms import inlineformset_factory
 from django.urls import reverse_lazy
-from .models import Product, Category, Version
-from .forms import ProductForm  # Импортируем нашу форму
+from django.views.generic import ListView, DetailView, TemplateView, CreateView, UpdateView, DeleteView
 
-class ProductListView(ListView):
+from catalog.forms import ProductForm, VersionForm
+from catalog.models import Product, Version
+
+
+# Создавайте свои мнения здесь.
+
+class ContactsPageView(TemplateView):
+    template_name = "catalog/contacts.html"
+
+
+class ProductListView(LoginRequiredMixin, ListView):
     model = Product
-    template_name = 'catalog/product_list.html'
-    context_object_name = 'object_list'
+
+
+class ProductDetailView(LoginRequiredMixin, DetailView):
+    model = Product
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        for product in context['object_list']:
-            current_version = product.versions.filter(is_current=True).first()
-            product.current_version = current_version
+        product = self.object
+        active_versions = product.versions.filter(version_flag=True)
+        context['active_versions'] = active_versions
         return context
 
 
-class ProductDetailView(DetailView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
-    template_name = 'catalog/product_detail.html'
-    context_object_name = 'object'
-
-class CategoryListView(ListView):
-    model = Category
-    template_name = 'catalog/category_list.html'
-    context_object_name = 'categories'
-
-class ProductListByCategoryView(ListView):
-    model = Product
-    template_name = 'catalog/product_list_by_category.html'
-    context_object_name = 'products'
-
-    def get_queryset(self):
-        category = get_object_or_404(Category, pk=self.kwargs['pk'])
-        queryset = Product.objects.filter(category=category)
-
-        min_price = self.request.GET.get('min_price')
-        max_price = self.request.GET.get('max_price')
-
-        if min_price:
-            queryset = queryset.filter(price__gte=min_price)
-        if max_price:
-            queryset = queryset.filter(price__lte=max_price)
-
-        return queryset
-
-class ContactsView(TemplateView):
-    template_name = 'catalog/contacts.html'
-
-# Новые представления для CRUD
-
-class ProductCreateView(CreateView):
-    model = Product
-    template_name = 'catalog/product_form.html'
     form_class = ProductForm
-    success_url = reverse_lazy('catalog:product_list')
+    success_url = reverse_lazy("catalog:catalog_list")
 
     def form_valid(self, form):
+        cleaned_data = form.cleaned_data['name'].lower()
+        forbidden_words = ['казино', 'криптовалюта', 'крипта', 'биржа', 'дешево', 'бесплатно', 'обман', 'полиция',
+                           'радар']
+
+        for word in forbidden_words:
+            if word in cleaned_data:
+                form.add_error('name', 'Данное название не подходит.')
+                return self.form_invalid(form)
+
+        product = form.save()
+        user = self.request.user
+        product.owner = user
+        product.save()
+
         return super().form_valid(form)
 
-class ProductUpdateView(UpdateView):
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        product_formset = inlineformset_factory(Product, Version, VersionForm, extra=1)
+        if self.request.method == 'POST':
+            context_data['formset'] = product_formset(self.request.POST, instance=self.object)
+        else:
+            context_data['formset'] = product_formset(instance=self.object)
+        return context_data
+
+
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
-    template_name = 'catalog/product_form.html'
     form_class = ProductForm
-    success_url = reverse_lazy('catalog:product_list')
+    success_url = reverse_lazy("catalog:catalog_list")
 
     def form_valid(self, form):
-        return super().form_valid(form)
+        context_data = self.get_context_data()
+        formset = context_data['formset']
+        if form.is_valid() and formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            return super().form_valid(form)
+        else:
+            return self.render_to_response(self.get_context_data(form=form, formset=formset))
 
-class ProductDeleteView(DeleteView):
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        product_formset = inlineformset_factory(Product, Version, VersionForm, extra=1)
+        if self.request.method == 'POST':
+            context_data['formset'] = product_formset(self.request.POST, instance=self.object)
+        else:
+            context_data['formset'] = product_formset(instance=self.object)
+        return context_data
+
+
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     model = Product
-    template_name = 'catalog/product_confirm_delete.html'
-    success_url = reverse_lazy('catalog:product_list')
-
-
-class VersionCreateView(CreateView):
-    model = Version
-    template_name = 'catalog/version_form.html'
-    fields = ['product', 'version_name', 'version_number', 'description']  # Поля для формы
-    success_url = reverse_lazy('catalog:product_list')  # После создания версии перенаправляем на список товаров
-
-    def form_valid(self, form):
-        # Можно добавить дополнительную логику для обработки данных формы
-        return super().form_valid(form)
-
-# Класс для редактирования версии товара
-class VersionUpdateView(UpdateView):
-    model = Version
-    template_name = 'catalog/version_form.html'
-    fields = ['version_name', 'version_number', 'description']  # Поля для формы
-    success_url = reverse_lazy('catalog:product_list')  # После редактирования версии перенаправляем на список товаров
-
-    def form_valid(self, form):
-        # Можно добавить дополнительную логику для обработки данных формы
-        return super().form_valid(form)
+    success_url = reverse_lazy('catalog:catalog_list')

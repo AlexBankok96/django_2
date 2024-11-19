@@ -1,40 +1,49 @@
-from django import forms
-from .models import Product, Version
+from django.forms import ModelForm, forms, BooleanField
 
-class ProductForm(forms.ModelForm):
+from catalog.models import Product, Version
+
+
+class StyleFormMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field, in self.fields.items():
+            if isinstance(field, BooleanField):
+                field.widget.attrs['class'] = 'form-check-input'
+            else:
+                field.widget.attrs['class'] = 'form-control'
+
+
+class ProductForm(ModelForm, StyleFormMixin):
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'category', 'image']
+        exclude = ("owner",)
 
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            # Применение crispy-форматирования
-            for field in self.fields.values():
-                field.widget.attrs.update({'class': 'form-control'})
+    def clean_product_name(self):
+        cleaned_data = self.cleaned_data['name']
 
-    # Запрещенные слова для валидации
-    forbidden_words = ['казино', 'криптовалюта', 'крипта', 'биржа', 'дешево', 'бесплатно', 'обман', 'полиция', 'радар']
+        forbidden_words = ['казино', 'криптовалюта', 'крипта', 'биржа', 'дешево', 'бесплатно', 'обман', 'полиция',
+                           'радар']
 
-    def clean_name(self):
-        name = self.cleaned_data.get('name', '')
-        for word in self.forbidden_words:
-            if word in name.lower():
-                raise forms.ValidationError(f"Название не должно содержать запрещенные слова, такие как: {word}.")
-        return name
+        for word in forbidden_words:
+            if word in cleaned_data:
+                raise forms.ValidationError('Данное наименование не подходит')
 
-    def clean_description(self):
-        description = self.cleaned_data.get('description', '')
-        for word in self.forbidden_words:
-            if word in description.lower():
-                raise forms.ValidationError(f"Описание не должно содержать запрещенные слова, такие как: {word}.")
-        return description
+        return cleaned_data
+
+    def clean_product_description(self):
+        cleaned_data = self.cleaned_data['description']
+
+        forbidden_words = ['казино', 'криптовалюта', 'крипта', 'биржа', 'дешево', 'бесплатно', 'обман', 'полиция',
+                           'радар']
+
+        for word in forbidden_words:
+            if word in cleaned_data:
+                raise forms.ValidationError('Данное описание не подходит')
+
+        return cleaned_data
 
 
-class VersionForm(forms.ModelForm):
+class VersionForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Version
-        fields = ['product', 'version_number', 'version_name', 'is_current']
-
-    def __init__(self, *args, **kwargs):
-        super(VersionForm, self).__init__(*args, **kwargs)
-        self.fields['is_current'].widget.attrs.update({'class': 'form-check-input'})
+        fields = ('version_number', 'name', 'version_flag')
