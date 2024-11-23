@@ -1,6 +1,6 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
-
+from django.utils.timezone import now
 
 class User(AbstractUser):
     """
@@ -9,7 +9,7 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True, verbose_name="электронный адрес")
 
-    avatar = models.ImageField(upload_to="users/", verbose_name="аватар")
+    avatar = models.ImageField(upload_to="users/", verbose_name="аватар", blank=True, null=True)
     phone = models.CharField(
         max_length=15,
         verbose_name="Номер телефона",
@@ -18,9 +18,11 @@ class User(AbstractUser):
         blank=True,
     )
 
-    country = models.CharField(max_length=50, verbose_name="страна")
+    country = models.CharField(max_length=50, verbose_name="страна", blank=True, null=True)
 
     token = models.CharField(max_length=100, verbose_name="Token", blank=True, null=True)
+
+    date_joined = models.DateTimeField(default=now, verbose_name="Дата регистрации")
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

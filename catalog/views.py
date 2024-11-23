@@ -1,13 +1,11 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.forms import inlineformset_factory
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, TemplateView, CreateView, UpdateView, DeleteView
-
-from catalog.forms import ProductForm, VersionForm
+from catalog.forms import ProductForm, VersionForm, ModeratorForm  # Импортируем ModeratorForm
 from catalog.models import Product, Version
 
-
-# Создавайте свои мнения здесь.
 
 class ContactsPageView(TemplateView):
     template_name = "catalog/contacts.html"
@@ -65,6 +63,13 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     form_class = ProductForm
     success_url = reverse_lazy("catalog:catalog_list")
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Проверка, что продукт принадлежит текущему пользователю
+        if self.request.user.is_authenticated:
+            queryset = queryset.filter(owner=self.request.user)
+        return queryset
+
     def form_valid(self, form):
         context_data = self.get_context_data()
         formset = context_data['formset']
@@ -85,7 +90,56 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
             context_data['formset'] = product_formset(instance=self.object)
         return context_data
 
+    def get_form_class(self):
+        user = self.request.user
+        if user == self.object.owner:
+            return ProductForm  # Форма для владельца товара
+        if user.has_perm('catalog.can_unpublish_product') and user.has_perm('catalog.can_change_product_description') and user.has_perm('catalog.can_change_product_category'):
+            return ModeratorForm  # Если модератор, то используем ModeratorForm
+        raise PermissionDenied  # Если нет прав, доступ запрещен
+
 
 class ProductDeleteView(LoginRequiredMixin, DeleteView):
     model = Product
     success_url = reverse_lazy('catalog:catalog_list')
+
+
+class VersionCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Version
+    form_class = VersionForm
+    permission_required = 'catalog.add_version'
+    success_url = reverse_lazy('catalog:catalog_list')
+
+    def form_valid(self, form):
+        product = form.cleaned_data['product']
+        if not self.request.user == product.owner and not self.request.user.has_perm('catalog.change_product'):
+            form.add_error('product', 'У вас нет прав на создание версии для этого продукта.')
+            return self.form_invalid(form)
+        return super().form_valid(form)
+
+
+class VersionUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = Version
+    form_class = VersionForm
+    permission_required = 'catalog.change_version'
+    success_url = reverse_lazy('catalog:catalog_list')
+
+    def form_valid(self, form):
+        version = form.instance
+        if not self.request.user == version.product.owner and not self.request.user.has_perm('catalog.change_product'):
+            form.add_error('product', 'У вас нет прав на редактирование версии этого продукта.')
+            return self.form_invalid(form)
+        return super().form_valid(form)
+
+
+class VersionDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Version
+    permission_required = 'catalog.delete_version'
+    success_url = reverse_lazy('catalog:catalog_list')
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        version = self.get_object()
+        if self.request.user != version.product.owner and not self.request.user.has_perm('catalog.change_product'):
+            return queryset.none()
+        return queryset

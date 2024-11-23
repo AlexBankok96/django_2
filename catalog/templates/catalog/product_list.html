@@ -4,7 +4,7 @@
 {% block content %}
 <h1 class="my-4">Список товаров</h1>
 
-<a href="{% url 'catalog:product_create' %}" class="btn btn-primary mb-4">Создать новый товар</a>
+<a href="{% url 'catalog:create_product' %}" class="btn btn-primary mb-4">Создать новый товар</a>
 
 <div class="row">
     {% for object in object_list %}
@@ -15,7 +15,7 @@
             <div class="card-body">
                 <h5 class="card-title">{{ object.name }}</h5>
                 <p class="card-text">{{ object.description|truncatewords:20 }}</p>
-                <p class="card-text"><strong>Цена: {{ object.price }} руб.</strong></p>
+                <p class="card-text"><strong>Цена: {{ object.purchase_price }} руб.</strong></p>
 
                 {% if object.current_version %}
                 <p class="card-text"><strong>Текущая версия:</strong> {{ object.current_version.version_name }} ({{ object.current_version.version_number }})</p>
@@ -25,8 +25,14 @@
 
                 <div class="btn-group">
                     <a href="{% url 'catalog:product_detail' object.pk %}" class="btn btn-info">Подробнее</a>
-                    <a href="{% url 'catalog:product_update' object.pk %}" class="btn btn-warning">Редактировать</a>
-                    <a href="{% url 'catalog:product_delete' object.pk %}" class="btn btn-danger">Удалить</a>
+
+                    {% if object.owner == user %}
+                        <a href="{% url 'catalog:product_update' object.pk %}" class="btn btn-warning">Редактировать</a>
+                    {% endif %}
+
+                    {% if perms.catalog.delete_product %}
+                        <a href="{% url 'catalog:product_delete' object.pk %}" class="btn btn-danger">Удалить</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

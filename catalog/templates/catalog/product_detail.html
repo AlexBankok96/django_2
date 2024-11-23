@@ -17,7 +17,14 @@
         <div class="col-md-6">
             <h2>{{ object.name }}</h2>
             <p>{{ object.description }}</p>
-            <p><strong>Цена: {{ object.price }} руб.</strong></p>
+            <p><strong>Цена: {{ object.purchase_price }} руб.</strong></p>
+
+            {% if object.owner == user %}
+                <a href="{% url 'catalog:product_update' object.pk %}" class="btn btn-primary">Редактировать</a>
+            {% endif %}
+            {% if perms.catalog.delete_product %}
+                <a href="{% url 'catalog:product_delete' object.pk %}" class="btn btn-danger">Удалить</a>
+            {% endif %}
         </div>
     </div>
 </div>

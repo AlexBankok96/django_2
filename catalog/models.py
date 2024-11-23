@@ -1,17 +1,19 @@
 from django.db import models
-
 from users.models import User
 
-
-# Создавайте свои модели здесь
-
-
 class Product(models.Model):
+    NOT_PUBLISHED = 'not_published'
+    PUBLISHED = 'published'
+
+    STATUS_CHOICES = [
+        (NOT_PUBLISHED, 'Не опубликован'),
+        (PUBLISHED, 'Опубликован'),
+    ]
+
     name = models.CharField(
         max_length=50,
         verbose_name="Наименование",
         help_text="Введите название продукта",
-
     )
     description = models.TextField(
         max_length=1000, verbose_name="Описание", help_text="Введите описание продукта"
@@ -44,11 +46,17 @@ class Product(models.Model):
         null=True,
         on_delete=models.SET_NULL
     )
+    # Новое поле для статуса публикации
+    published = models.BooleanField(default=False, verbose_name="Публикация", help_text="Статус публикации продукта")
 
     class Meta:
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"
         ordering = ["name", "category"]
+
+    def save(self, *args, **kwargs):
+        # Убираем логику с version_number
+        super().save(*args, **kwargs)
 
 
 class Category(models.Model):
@@ -98,8 +106,7 @@ class Version(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.version_number:
-            max_version = Version.objects.filter(product=self.product).aggregate(models.Max('version_number'))[
-                'version_number__max']
+            max_version = Version.objects.filter(product=self).aggregate(models.Max('version_number'))['version_number__max']
             self.version_number = (max_version + 1) if max_version is not None else 1
         if self.version_flag:
             Version.objects.filter(product=self.product, version_flag=True).update(version_flag=False)

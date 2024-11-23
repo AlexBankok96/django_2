@@ -27,13 +27,15 @@
 
         {{ form.as_p }}
         
-        <button type="submit" class="btn btn-primary">
-            {% if object %}
-                Сохранить изменения
-            {% else %}
-                Создать товар
-            {% endif %}
-        </button>
+        {% if perms.catalog.change_product %}
+            <button type="submit" class="btn btn-primary">
+                {% if object %}
+                    Сохранить изменения
+                {% else %}
+                    Создать товар
+                {% endif %}
+            </button>
+        {% endif %}
     </form>
 </div>
 {% endblock %}

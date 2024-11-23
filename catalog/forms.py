@@ -1,9 +1,7 @@
 from django.forms import ModelForm, forms, BooleanField
-
 from catalog.models import Product, Version
 
-
-class StyleFormMixin:
+class StyleFormMixin(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field, in self.fields.items():
@@ -42,8 +40,25 @@ class ProductForm(ModelForm, StyleFormMixin):
 
         return cleaned_data
 
-
 class VersionForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Version
         fields = ('version_number', 'name', 'version_flag')
+
+    def clean_version_number(self):
+        cleaned_data = self.cleaned_data['version_number']
+        if cleaned_data < 1:
+            raise forms.ValidationError("Номер версии должен быть больше или равен 1.")
+        return cleaned_data
+
+from django import forms
+from catalog.models import Product
+
+class ModeratorForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'purchase_price', 'category', 'image']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['description'].required = False
