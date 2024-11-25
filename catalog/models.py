@@ -53,9 +53,12 @@ class Product(models.Model):
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"
         ordering = ["name", "category"]
+        permissions = [
+            ("can_publish_product", "Может публиковать продукт"),
+            ("can_edit_any_product", "Может редактировать любой продукт"),
+        ]
 
     def save(self, *args, **kwargs):
-        # Убираем логику с version_number
         super().save(*args, **kwargs)
 
 
