@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-f078g(-g193kt6+t1-oma8^194%wf7ov+e4(o^%lbb8x=pbgr*'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", False) == "True"
 
 ALLOWED_HOSTS = []
 
@@ -81,11 +85,11 @@ WSGI_APPLICATION = 'hw3.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'djangodb',
-        'USER': 'postgres',
-        'PASSWORD': '168441',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv("NAME"),
+        'USER': os.getenv("USER"),
+        'PASSWORD': os.getenv("PASSWORD"),
+        'HOST': os.getenv("HOST"),
+        'PORT': os.getenv("PORT"),
     }
 }
 
@@ -141,12 +145,23 @@ LOGOUT_REDIRECT_URL = '/'
 
 LOGIN_URL = "users:login"
 
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_PORT = 465
-EMAIL_HOST_USER = "sergbankok@ya.ru"
-EMAIL_HOST_PASSWORD = "wfpddhybwbdhecdl"
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", False) == "True"
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", False) == "True"
 
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+CACHE_ENABLED = True
+if CACHE_ENABLED:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": os.getenv("LOCATION"),
+        }
+    }
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]

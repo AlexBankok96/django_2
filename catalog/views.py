@@ -3,9 +3,11 @@ from django.core.exceptions import PermissionDenied
 from django.forms import inlineformset_factory
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, TemplateView, CreateView, UpdateView, DeleteView
-from catalog.forms import ProductForm, VersionForm, ModeratorForm  # Импортируем ModeratorForm
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from catalog.forms import ProductForm, VersionForm, ModeratorForm
 from catalog.models import Product, Version
-
+from catalog.services import get_categories_from_cache
 
 class ContactsPageView(TemplateView):
     template_name = "catalog/contacts.html"
@@ -14,15 +16,25 @@ class ContactsPageView(TemplateView):
 class ProductListView(LoginRequiredMixin, ListView):
     model = Product
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = get_categories_from_cache()
+        return context
+
 
 class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
+
+    @method_decorator(cache_page(60))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         product = self.object
         active_versions = product.versions.filter(version_flag=True)
         context['active_versions'] = active_versions
+        context['categories'] = get_categories_from_cache()
         return context
 
 
@@ -33,8 +45,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         cleaned_data = form.cleaned_data['name'].lower()
-        forbidden_words = ['казино', 'криптовалюта', 'крипта', 'биржа', 'дешево', 'бесплатно', 'обман', 'полиция',
-                           'радар']
+        forbidden_words = ['казино', 'криптовалюта', 'крипта', 'биржа', 'дешево', 'бесплатно', 'обман', 'полиция', 'радар']
 
         for word in forbidden_words:
             if word in cleaned_data:
@@ -55,6 +66,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
             context_data['formset'] = product_formset(self.request.POST, instance=self.object)
         else:
             context_data['formset'] = product_formset(instance=self.object)
+        context_data['categories'] = get_categories_from_cache()
         return context_data
 
 
@@ -65,7 +77,6 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        # Проверка, что продукт принадлежит текущему пользователю
         if self.request.user.is_authenticated:
             queryset = queryset.filter(owner=self.request.user)
         return queryset
@@ -88,15 +99,8 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
             context_data['formset'] = product_formset(self.request.POST, instance=self.object)
         else:
             context_data['formset'] = product_formset(instance=self.object)
+        context_data['categories'] = get_categories_from_cache()  # Добавляем категории в контекст
         return context_data
-
-    def get_form_class(self):
-        user = self.request.user
-        if user == self.object.owner:
-            return ProductForm  # Форма для владельца товара
-        if user.has_perm('catalog.can_unpublish_product') and user.has_perm('catalog.can_change_product_description') and user.has_perm('catalog.can_change_product_category'):
-            return ModeratorForm  # Если модератор, то используем ModeratorForm
-        raise PermissionDenied  # Если нет прав, доступ запрещен
 
 
 class ProductDeleteView(LoginRequiredMixin, DeleteView):

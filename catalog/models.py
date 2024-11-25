@@ -46,7 +46,7 @@ class Product(models.Model):
         null=True,
         on_delete=models.SET_NULL
     )
-    # Новое поле для статуса публикации
+
     published = models.BooleanField(default=False, verbose_name="Публикация", help_text="Статус публикации продукта")
 
     class Meta:

@@ -9,11 +9,9 @@ readme = "README.md"
 python = "^3.12"
 django = "^5.1.1"
 pillow = "^10.4.0"
-<<<<<<< HEAD
 psycopg2 = "^2.9.9"
-=======
->>>>>>> 6b8043fa86c735e227fbb73efcc59ccf8204fdce
-
+redis = "^5.2.0"
+python-dotenv = "^1.0.1"
 
 [build-system]
 requires = ["poetry-core"]
