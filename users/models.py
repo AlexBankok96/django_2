@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.timezone import now
 
@@ -26,6 +26,14 @@ class User(AbstractUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
+    # Добавление related_name для groups и user_permissions
+    groups = models.ManyToManyField(
+        'auth.Group', related_name='users_user_set', blank=True
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission', related_name='users_user_permissions_set', blank=True
+    )
 
     class Meta:
         verbose_name = 'Пользователь'

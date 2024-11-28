@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'blog',
     'crispy_forms',
     'users',
+    'mailing',
+    'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -165,3 +167,5 @@ if CACHE_ENABLED:
     }
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_AT_START = True

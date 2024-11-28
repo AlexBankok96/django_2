@@ -13,9 +13,19 @@
                     <li><a href="{% url 'blog:blog_post_create' %}" class="text-white">Создать новый пост</a></li>
                     <li><a href="{% url 'blog:blog_post_list' %}" class="text-white">Просмотр карточек</a></li>
                     <li><a href="{% url 'catalog:create_product' %}" class="text-white">Создать новый продукт</a></li>
+
+                    <!-- Кнопки для рассылок -->
+                    <li><a href="{% url 'mailing:mailing_list' %}" class="text-white">Список рассылок</a></li>
+                    <li><a href="{% url 'mailing:mailing_create' %}" class="text-white">Создать рассылку</a></li>
+                    <li><a href="{% url 'mailing:mailingattempt_list' %}" class="text-white">Попытки рассылки</a></li>
+                    <li><a href="{% url 'mailing:message_list' %}" class="text-white">Сообщения рассылки</a></li>
+                    <li><a href="{% url 'mailing:message_create' %}" class="text-white">Создать сообщение</a></li>
+                    <li><a href="{% url 'mailing:recipient_list' %}" class="text-white">Получатели рассылки</a></li>
+                    <li><a href="{% url 'mailing:recipient_create' %}" class="text-white">Добавить получателя</a></li>
+
                     {% if user.is_authenticated %}
                     <li><a href="{% url 'users:logout' %}" class="text-white">Выйти</a></li>
-                    <li><a href="{% url 'users:profile' %}" class="text-white">редактировать профиль</a></li>
+                    <li><a href="{% url 'users:profile' %}" class="text-white">Редактировать профиль</a></li>
                     {% else %}
                     <li><a href="{% url 'users:login' %}" class="text-white">Войти</a></li>
                     <li><a href="{% url 'users:register' %}" class="text-white">Регистрация</a></li>
@@ -26,6 +36,7 @@
         </div>
     </div>
 </div>
+
 <div class="navbar navbar-dark bg-dark shadow-sm">
     <div class="container">
         <a href="#" class="navbar-brand d-flex align-items-center">

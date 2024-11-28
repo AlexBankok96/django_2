@@ -1,0 +1,42 @@
+[
+{
+    "model": "mailing.message",
+    "pk": 1,
+    "fields": {
+        "title": "test1",
+        "message": "test1"
+    }
+},
+{
+    "model": "mailing.message",
+    "pk": 2,
+    "fields": {
+        "title": "test2",
+        "message": "test2"
+    }
+},
+{
+    "model": "mailing.message",
+    "pk": 3,
+    "fields": {
+        "title": "123124",
+        "message": "swqaedwq"
+    }
+},
+{
+    "model": "mailing.message",
+    "pk": 4,
+    "fields": {
+        "title": "yyyqyweyyqwye",
+        "message": "qweqwdasd"
+    }
+},
+{
+    "model": "mailing.message",
+    "pk": 5,
+    "fields": {
+        "title": "sadasd",
+        "message": "xzczxczc"
+    }
+}
+]

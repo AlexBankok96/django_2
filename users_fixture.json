@@ -1,0 +1,44 @@
+[
+  {
+    "model": "users.user",
+    "pk": 7,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$dBQLxwsswRwc5v4DhYN78q$nMjKGqGlbcN3ReoYe3jppe+Jv4nfFQpxuL+ux0mYANk=",
+      "last_login": "2024-11-23T15:43:15.027Z",
+      "is_superuser": true,
+      "first_name": "",
+      "last_name": "",
+      "is_staff": true,
+      "is_active": true,
+      "email": "admin@example.com",
+      "avatar": "",
+      "phone": null,
+      "country": null,
+      "token": null,
+      "date_joined": "2024-11-23T15:11:16.138Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 8,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$mO2ykxrRYKMqjqbpJHrPcD$15+4+UuAa6PLLsiu+QyorEJwWJbWGEk7gddsXBXejkU=",
+      "last_login": "2024-11-27T17:47:20.425Z",
+      "is_superuser": true,
+      "first_name": "Admin",
+      "last_name": "Skypro",
+      "is_staff": true,
+      "is_active": true,
+      "email": "sergbankok@ya.ru",
+      "avatar": "",
+      "phone": null,
+      "country": null,
+      "token": null,
+      "date_joined": "2024-11-27T17:46:36.744Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]
